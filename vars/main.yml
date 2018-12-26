@@ -9,4 +9,5 @@ shoutcast_user_dir: /var/lib/shoutcast
 shoutcast_pid_dir: /var/run/shoutcast
 shoutcast_ban_dir: "{{ shoutcast_user_dir }}/ban.d"
 shoutcast_rip_dir: "{{ shoutcast_user_dir }}/rip.d"
+shoutcast_bin_dir: /usr/sbin
 shoutcast_bin: /usr/sbin/sc_serv

@@ -1,3 +1,5 @@
 ---
 
+shoutcast_keep_updated: false
+
 shoutcast_streams: []

@@ -1,12 +1,17 @@
 # Ansible Role: Shoutcast
 
-#### Version: 1.0.0
+#### Version: 1.1.0
+
+[![Ansible Role](https://img.shields.io/ansible/role/35848.svg)](https://galaxy.ansible.com/sparknsh/shoutcast)
+[![Ansible Role](https://img.shields.io/ansible/role/d/35848.svg)](https://galaxy.ansible.com/sparknsh/shoutcast)
 
 Development of this project is managed in a private repository then pushed out to [GitLab](https://gitlab.com/sparknsh/ansible-role-shoutcast) and [GitHub](https://github.com/sparknsh/ansible-role-shoutcast) when we have a new version for you. If you have any issues please contact [sparknsh](https://www.sparknsh.com/contact?type=issue&name=ansible-role-shoutcast)
 
 ## Role Variables
 
 ```yaml
+shoutcast_keep_updated: false
+
 shoutcast_streams: []
 ```
 
