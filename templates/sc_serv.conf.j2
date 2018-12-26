@@ -1,0 +1,39 @@
+# {{ ansible_managed }}
+
+pidfile={{ shoutcast_pid_dir }}/sc_serv_{{ item.port }}.pid
+
+songhistory=10
+streampath=stream
+namelookups=1
+password={{ item.passwd }}
+adminpassword={{ item.admin_passwd }}
+portbase={{ item.port }}
+requirestreamconfigs=1
+log=1
+screenlog=0
+logclients=1
+logfile={{ shoutcast_log_dir }}/sc_serv_{{ item.port }}.log
+w3cenable=1
+w3clog={{ shoutcast_log_dir }}/sc_w3c_{{ item.port }}.log
+publicserver=default
+ypaddr=yp.shoutcast.com
+ypport=80
+ypPath=/yp2
+ypTimeout=60
+banfile={{ shoutcast_ban_dir }}/sc_serv_{{ item.port }}.ban
+ripfile={{ shoutcast_rip_dir }}/sc_serv_{{ item.port }}.rip
+riponly=0
+maxuser={{ item.listeners }}
+
+{% if item.extras is defined %}
+{% for config_item, value in item.extras.items() | sort() %}
+{{ config_item }}={{ value | string }}
+{% endfor %}
+{% endif%}
+
+metainterval=32768
+
+streamid=1
+{% if item.hash is defined %}
+streamauthhash_1={{ item.hash }}
+{% endif %}

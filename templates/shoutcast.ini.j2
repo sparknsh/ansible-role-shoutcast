@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# {{ ansible_managed }}
+#
+# chkconfig:   - 85 15
+# description:  Shoutcast streaming server
+# processname: {{ shoutcast_user }}
+
+CONFIG="{{ shoutcast_conf_dir }}/**"
+DAEMON="{{ shoutcast_bin }}"
+PIDFILE="{{ shoutcast_pid_dir }}/**"
+LOCKFILE="/var/lock/shoutcast"
+prog=$(basename $DAEMON)
+
+if [ ! -d {{ shoutcast_pid_dir }} ]; then
+  mkdir -p {{ shoutcast_pid_dir }};
+  chown {{ shoutcast_user }}:{{ shoutcast_user }} {{ shoutcast_pid_dir }};
+fi
+
+if [ -f /etc/init.d/functions ]; then
+  . /etc/init.d/functions
+  START_PROS="daemon --user={{ shoutcast_user }} $DAEMON daemon"
+  STOP_PROS="killproc -p"
+  STATUS_PROS="status $prog"
+else
+  . /lib/lsb/init-functions
+  START_PROS="start-stop-daemon --start --background --user={{ shoutcast_user }} --exec $DAEMON daemon"
+  STOP_PROS="start-stop-daemon --stop --retry=TERM/30/KILL/5 --pidfile"
+  STATUS_PROS="status_of_proc "$DAEMON" "shoutcast" && exit 0 || exit $?"
+fi
+
+
+start() {
+  if [ -z "$(ls -A {{ shoutcast_conf_dir }}/)" ]; then
+    exit 1
+  else
+    for file in $CONFIG
+    do
+      $START_PROS $file
+      RETVAL="$?"
+      PORT=`echo "$file" | awk -F'[_.]' '{print $3}'`
+      echo "Starting Shoutcast: $PORT"
+    done
+    [ $RETVAL -eq 0 ] && touch $LOCKFILE
+    return $RETVAL
+  fi
+}
+
+stop() {
+  if [ -z "$(ls -A {{ shoutcast_pid_dir }}/)" ]; then
+    exit 1
+  else
+    for file in $PIDFILE
+    do
+      $STOP_PROS $file
+      RETVAL="$?"
+      PORT=`echo "$file" | awk -F'[_.]' '{print $3}'`
+      echo "Stopping Shoutcast: $PORT"
+    done
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+    return $RETVAL
+  fi
+}
+
+restart() {
+  stop
+  start
+}
+
+rh_status() {
+  $STATUS_PROS
+}
+
+rh_status_q() {
+  rh_status >/dev/null 2>&1
+}
+
+# The init commands
+case "$1" in
+  start)
+    rh_status_q && exit 0
+    $1
+    ;;
+  stop)
+    rh_status_q || exit 0
+    $1
+    ;;
+  restart)
+    $1
+    ;;
+  status|status_q)
+    rh_$1
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart}"
+    exit 2
+esac

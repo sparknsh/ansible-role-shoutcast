@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Shoutcast Streaming Service Port %i
+Documentation=https://www.shoutcast.com
+After=network-online.target remote-fs.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shoutcast
+Group=shoutcast
+PIDFile={{ shoutcast_pid_dir }}/sc_serv_%i.pid
+ExecStart={{ shoutcast_bin }} {{ shoutcast_conf_dir }}/sc_serv_%i.conf
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

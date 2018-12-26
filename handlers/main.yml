@@ -1,0 +1,13 @@
+---
+
+- name: Restart Shoutcast systemd
+  systemd:
+    name: "shoutcast@*"
+    state: restarted
+  when: is_systemctl.stdout == 'systemd'
+
+- name: Restart Shoutcast init
+  service:
+    name: "shoutcast"
+    state: restarted
+  when: is_systemctl.stdout == 'init'

@@ -1,0 +1,144 @@
+---
+
+- name: "Check for systemd or init"
+  command: ps -p 1 -o comm=
+  register: is_systemctl
+  ignore_errors: true
+  failed_when: false
+  changed_when: false
+
+- name: "Create user {{ shoutcast_user }}"
+  user:
+    name: "{{ shoutcast_user }}"
+    state: present
+    system: false
+    createhome: true
+    home: "{{ shoutcast_user_dir }}"
+
+- name: "Make system folders"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ shoutcast_user }}"
+    group: "{{ shoutcast_user }}"
+    mode: 0755
+  with_items:
+    - "{{ shoutcast_ban_dir }}"
+    - "{{ shoutcast_rip_dir }}"
+    - "{{ shoutcast_pid_dir }}"
+    - "{{ shoutcast_tmp }}"
+    - "{{ shoutcast_log_dir }}"
+    - "{{ shoutcast_conf_dir }}"
+
+- name: shoutcast is installed
+  stat:
+    path: "{{ shoutcast_bin }}"
+  register: stat_result
+
+- name: "Extract shoutcast zip"
+  unarchive:
+    src: "{{ shoutcast_source_url }}"
+    dest: "{{ shoutcast_tmp }}"
+    remote_src: true
+    validate_certs: false
+  when: stat_result.stat.exists == false
+
+- name: "Set shoutcast"
+  copy:
+    src: "{{ shoutcast_tmp }}/sc_serv"
+    dest: "{{ shoutcast_bin }}"
+    mode: 0755
+    remote_src: true
+  when: stat_result.stat.exists == false
+
+- name: "systemd"
+  block:
+
+    - name: "Set file to create temp folder"
+      template:
+        src: "shoutcast.conf.j2"
+        dest: "/usr/lib/tmpfiles.d/shoutcast.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: "Set systemd service file"
+      template:
+        src: "shoutcast@.service.j2"
+        dest: "/lib/systemd/system/shoutcast@.service"
+        owner: root
+        group: root
+        mode: 0644
+
+  when: is_systemctl.stdout == 'systemd'
+
+- name: "Add shoutcast stream"
+  template:
+    src: "sc_serv.conf.j2"
+    dest: "{{ shoutcast_conf_dir }}/sc_serv_{{ item.port }}.conf"
+    owner: "{{ shoutcast_user }}"
+    group: "{{ shoutcast_user }}"
+    mode: 0644
+  when: item.state | default('present') != 'absent'
+  loop_control:
+    label: "shoutcast {{ item.port }}"
+  with_items: "{{ shoutcast_streams }}"
+  notify:
+    - Restart Shoutcast systemd
+    - Restart Shoutcast init
+
+- name: "Remove shoutcast stream"
+  file:
+    path: "{{ shoutcast_conf_dir }}/sc_serv_{{ item.port }}.conf"
+    state: absent
+  when: item.state | default('present') == 'absent'
+  loop_control:
+    label: "shoutcast {{ item.port }}"
+  with_items: "{{ shoutcast_streams }}"
+  notify:
+    - Restart Shoutcast systemd
+    - Restart Shoutcast init
+
+- name: "systemd"
+  block:
+
+    - name: "Enable shoutcast stream"
+      systemd:
+        name: "shoutcast@{{ item.port }}"
+        state: started
+        enabled: true
+      when: item.state | default('present') != 'absent'
+      loop_control:
+        label: "shoutcast {{ item.port }}"
+      with_items: "{{ shoutcast_streams }}"
+
+    - name: "Disable shoutcast stream"
+      systemd:
+        name: "shoutcast@{{ item.port }}"
+        state: stopped
+        enabled: false
+      when: item.state | default('present') == 'absent'
+      loop_control:
+        label: "shoutcast {{ item.port }}"
+      with_items: "{{ shoutcast_streams }}"
+
+  when: is_systemctl.stdout == 'systemd'
+
+- name: "init"
+  block:
+
+    - name: "Set init service file"
+      template:
+        src: "shoutcast.ini.j2"
+        dest: "/etc/init.d/shoutcast"
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: "Enable init service"
+      service:
+        name: "shoutcast"
+        state: started
+        enabled: true
+
+  when: is_systemctl.stdout == 'init'
