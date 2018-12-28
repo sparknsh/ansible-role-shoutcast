@@ -1,16 +1,4 @@
 ---
 
-- hosts: all
-  become: true
-  gather_timeout: 60
-
-  roles:
-    - role_under_test
-
-  vars:
-    shoutcast_streams:
-    - port: 8000
-      listeners: 10
-      passwd: 4W7APeAAv7w7jUt
-      admin_passwd: y48DCnuE74RRSYVAWBjpWzXbL7brhe
-      state: present
+- hosts: localhost
+  remote_user: root

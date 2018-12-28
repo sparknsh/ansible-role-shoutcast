@@ -1,5 +1,7 @@
 ---
 extends: default
+ignore: |
+  virtenv-*/
 rules:
   line-length:
     max: 350

@@ -1,0 +1,8 @@
+---
+
+shoutcast_streams:
+  - port: 8000
+    listeners: 10
+    passwd: 4W7APeAAv7w7jUt
+    admin_passwd: y48DCnuE74RRSYVAWBjpWzXbL7brhe
+    state: present

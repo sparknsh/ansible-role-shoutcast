@@ -1,15 +1,11 @@
 ---
+
 - name: Converge
   hosts: all
   gather_timeout: 300
 
-  vars:
-    shoutcast_streams:
-      - port: 8000
-        listeners: 10
-        passwd: 4W7APeAAv7w7jUt
-        admin_passwd: y48DCnuE74RRSYVAWBjpWzXbL7brhe
-        state: present
+  vars_files:
+    - vars.yml
 
   pre_tasks:
     - name: Update apt cache.
@@ -18,4 +14,4 @@
       changed_when: false
 
   roles:
-    - role: sparknsh.shoutcast
+    - role: sparknsh.%ANSIBLE_GALAXY%

@@ -1,13 +1,18 @@
 ---
 
-shoutcast_source_url: https://download.nullsoft.com/shoutcast/tools/sc_serv2_linux{{ '_x64' if ansible_architecture == 'x86_64' else '' }}-latest.tar.gz
-shoutcast_user: shoutcast
-shoutcast_tmp: /tmp/shoutcast
-shoutcast_conf_dir: /etc/shoutcast
-shoutcast_log_dir: /var/log/shoutcast
-shoutcast_user_dir: /var/lib/shoutcast
-shoutcast_pid_dir: /var/run/shoutcast
+shoutcast_source_url: "https://download.nullsoft.com/shoutcast/tools/sc_serv2_linux{{ '_x64' if ansible_architecture == 'x86_64' else '' }}-latest.tar.gz"
+shoutcast_cacert_url: "https://curl.haxx.se/ca/cacert.pem"
+
+shoutcast_user: "shoutcast"
+
+shoutcast_bin: "{{ shoutcast_bin_dir }}/sc_serv"
+shoutcast_cacert: "{{ shoutcast_bin_dir }}/cacert.pem"
+
+shoutcast_user_dir: "/var/lib/shoutcast"
+shoutcast_conf_dir: "/etc/shoutcast"
+shoutcast_tmp_dir: "/tmp/shoutcast"
+shoutcast_log_dir: "/var/log/shoutcast"
+shoutcast_pid_dir: "/var/run/shoutcast"
 shoutcast_ban_dir: "{{ shoutcast_user_dir }}/ban.d"
 shoutcast_rip_dir: "{{ shoutcast_user_dir }}/rip.d"
-shoutcast_bin_dir: /usr/sbin
-shoutcast_bin: /usr/sbin/sc_serv
+shoutcast_bin_dir: "{{ shoutcast_user_dir }}"

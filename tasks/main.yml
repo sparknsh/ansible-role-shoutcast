@@ -26,7 +26,7 @@
     - "{{ shoutcast_ban_dir }}"
     - "{{ shoutcast_rip_dir }}"
     - "{{ shoutcast_pid_dir }}"
-    - "{{ shoutcast_tmp }}"
+    - "{{ shoutcast_tmp_dir }}"
     - "{{ shoutcast_log_dir }}"
     - "{{ shoutcast_conf_dir }}"
 
@@ -39,6 +39,15 @@
     keep_newer: "{{ shoutcast_keep_updated }}"
     validate_certs: false
     extra_opts: "sc_serv"
+
+- name: "Install Shoutcast CA Cert"
+  get_url:
+    url: "{{ shoutcast_cacert_url }}"
+    dest: "{{ shoutcast_cacert }}"
+    owner: "{{ shoutcast_user }}"
+    group: "{{ shoutcast_user }}"
+    mode: 0644
+    force: "{{ shoutcast_keep_updated }}"
 
 - name: "systemd"
   block:
