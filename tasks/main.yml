@@ -127,7 +127,7 @@
 
     - name: "Set init service file"
       template:
-        src: "shoutcast.ini.j2"
+        src: "shoutcast.init.j2"
         dest: "/etc/init.d/shoutcast"
         owner: root
         group: root
