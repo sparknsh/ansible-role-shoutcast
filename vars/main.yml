@@ -1,6 +1,7 @@
 ---
 
-shoutcast_source_url: "https://download.nullsoft.com/shoutcast/tools/sc_serv2_linux{{ '_x64' if ansible_architecture == 'x86_64' else '' }}-latest.tar.gz"
+shoutcast_source_url: "https://download.nullsoft.com/shoutcast/tools"
+shoutcast_source_url_arch: "{{ '_x64' if ansible_architecture == 'x86_64' else '' }}"
 shoutcast_cacert_url: "https://curl.haxx.se/ca/cacert.pem"
 
 shoutcast_user: "shoutcast"
